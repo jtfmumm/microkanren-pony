@@ -207,11 +207,11 @@ primitive MK
   // Extensions
   //////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////
-  fun delay(g: Goal): Goal =>
+  fun recur(f: {(): Goal} val): Goal =>
     object val is Goal
-      let g: Goal = g
+      let f: {(): Goal} val = f
       fun apply(s: State): Stream[State] =>
-        SDelay[State]({(): Stream[State] => g(s)} val)
+        SGoalStep(f, s)
     end
 
   // Not really exclusive or. Tries the second goal only if the first fails.
@@ -271,10 +271,10 @@ primitive MK
   fun appendo(l1: Term, l2: Term, result: Term): Goal =>
     (nullo(l1) and (l2 == result)) or
     fresh3(
-      {(h: Var, t: Var, lst: Var): Goal =>
+      {(h: Var, t: Var, lst: Var)(l2): Goal =>
         MK.conso(h, t, l1) and
         MK.conso(h, lst, result) and
-        MK.delay(MK.appendo(t, l2, lst))
+        MK.recur({(): Goal => MK.appendo(t, l2, lst)} val)
       } val)
 
   fun membero(x: Term, l: Term): Goal =>
@@ -282,8 +282,11 @@ primitive MK
     fresh(
       {(t: Var)(x): Goal =>
         MK.tailo(t, l) and
-        MK.delay(MK.membero(x, t))
+        MK.recur({(): Goal => MK.membero(x, t)} val)
       } val)
+
+  fun divergo(): Goal =>
+    MK.recur({(): Goal => MK.divergo()} val)
 
   /////////////////
   // Reification
@@ -350,6 +353,20 @@ type GoalConstructor2 is {(Var, Var): Goal} val
 type GoalConstructor3 is {(Var, Var, Var): Goal} val
 type GoalConstructor4 is {(Var, Var, Var, Var): Goal} val
 type GoalConstructor0 is {(): Goal} val
+
+class val SGoalStep is SNext[State]
+  let _g: Goal
+  let _sc: State
+
+  new val create(f: {(): Goal} val, sc: State) =>
+    _g = f()
+    _sc = sc
+
+  fun val step(): Stream[State] =>
+    _g(_sc)
+
+  fun mature(): (State, Stream[State]) ? =>
+    _g(_sc).mature()
 
 ////////////////////////
 // List creation API

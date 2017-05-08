@@ -8,6 +8,9 @@ primitive SNil[A: Any val]
   The empty stream of As.
   """
 
+  fun val step(): Stream[A] =>
+    this
+
   fun mature(): (A, Stream[A]) ? =>
     error
 
@@ -81,9 +84,12 @@ primitive SNil[A: Any val]
     ")"
 
 trait val SNext[A: Any val]
-  // In order to implement an SNext, you only need an implementation
-  // of mature()
+  // In order to implement an SNext, you need an implementation
+  // of mature() (and possibly of step())
   fun mature(): (A, Stream[A]) ?
+
+  fun val step(): Stream[A] =>
+    force()
 
   fun val force(): Stream[A] =>
     try
@@ -225,6 +231,9 @@ class val SCons[A: Any val]
   new val create(h: A, t: Stream[A]) =>
     _head = h
     _tail = t
+
+  fun val step(): Stream[A] =>
+    this
 
   fun mature(): (A, Stream[A]) =>
     (_head, _tail)

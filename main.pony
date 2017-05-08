@@ -118,7 +118,15 @@ actor Main
         MK.reify_items(res11).string().cstring())
       // Reified: Stream(WA, NY, Bronx, Seattle)
 
-      @printf[I32]("\nAppendo\n".cstring())
+      @printf[I32]("\nDivergo (printing this result would diverge)\n"
+        .cstring())
+      let res666 =
+        MK.fresh2(
+          {(q1: Var, q2: Var): Goal =>
+            MK.divergo()
+          } val)()
+
+      @printf[I32]("\nAppendo1\n".cstring())
       let res12 =
         MK.fresh(
           {(q1: Var): Goal =>
@@ -130,7 +138,7 @@ actor Main
       // Reified: Stream(
       // [0: (a . (b . (c . (d . ()))))])
 
-      @printf[I32]("\nAppendo\n".cstring())
+      @printf[I32]("\nAppendo2\n".cstring())
       let res13 =
         MK.fresh2(
           {(q1: Var, q2: Var): Goal =>
@@ -147,15 +155,25 @@ actor Main
       // [0: (a . (b . (c . (d . ())))), 1: (e . ())],
       // [0: (a . (b . (c . (d . (e . ()))))), 1: ()])
 
+      @printf[I32]("\nAppendo3\n".cstring())
+       let res14 =
+        MK.fresh2(
+          {(q1: Var, q2: Var): Goal =>
+            MK.appendo(q1, TList("d e"), q2)
+          } val)().take(10)
+
+      @printf[I32]("Reified: %s\n".cstring(),
+        MK.reify2(res14).string().cstring())
+
       @printf[I32]("\nMembero\n".cstring())
-      let res14 =
+      let res15 =
         MK.fresh(
           {(q1: Var): Goal =>
             MK.membero(Vl("a"), q1)
           } val)().take(10)
 
       @printf[I32]("Reified: %s\n".cstring(),
-        MK.reify(res14).string().cstring())
+        MK.reify(res15).string().cstring())
       // Reified: Stream(
       // [0: (a . #(1))],
       // [0: (#(2) . (a . #(3)))],
