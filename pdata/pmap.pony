@@ -86,7 +86,7 @@ class val LeafNode[K: (Hashable val & Equatable[K] val), V]
     Update the value associated with the provided key.
     """
     if k == _key then
-      LeafNode[K, V](k, v) as Map[K, V]
+      LeafNode[K, V](k, v)
     else
       let mapNode = MapNode[K, V].empty().update(_key, _value)?
       mapNode.update(k, v)?
@@ -97,7 +97,7 @@ class val LeafNode[K: (Hashable val & Equatable[K] val), V]
     Update the value associated with the provided key, using hash and level.
     """
     if k == _key then
-      LeafNode[K, V](k, v) as Map[K, V]
+      LeafNode[K, V](k, v)
     else
       let mapNode = MapNode[K, V].empty()._putWithHash(_key, _value, MapHelpers._hash[K](_key), level)?
       mapNode._putWithHash(k, v, hash, level)?
@@ -449,7 +449,7 @@ class val MapNode[K: (Hashable val & Equatable[K] val), V]
     """
     Try to remove the provided key from the node.
     """
-    if contains(k) then _removeWithHash(k, MapHelpers._hash[K](k), 0)? else this as Map[K, V] end
+    if contains(k) then _removeWithHash(k, MapHelpers._hash[K](k), 0)? else this end
 
   fun _removeWithHash(k: K, hash: U32, level: U32): Map[K, V] ? =>
     """

@@ -182,19 +182,14 @@ trait val SNext[A: Any val]
 
   fun string(): String =>
     try
-      match head()?
+      let name = match head()?
       | let str: Printable =>
-        try
-          "Stream(" + str.string() + tail()?._string()
-        else
-          "Stream(" + str.string() + ")"
-        end
+        str.string()
+      end
+      try
+        return "Stream(" + name.string() + tail()?._string()
       else
-        try
-          "Stream(" + "?" + tail()?._string()
-        else
-          "Stream(" + "?" + ")"
-        end
+        return "Stream(" + name.string() + ")"
       end
     else
       "Stream()"
@@ -202,19 +197,14 @@ trait val SNext[A: Any val]
 
   fun _string(): String =>
     try
-      match head()?
+      let name = match head()?
       | let str: Printable =>
-        try
-          ", " + str.string() + tail()?._string()
-        else
-          ", " + str.string() + ")"
-        end
+        str.string()
+      end
+      try
+        ", " + name.string() + tail()?._string()
       else
-        try
-          ", " + "?" + tail()?._string()
-        else
-          ", " + "?" + ")"
-        end
+        ", " + name.string() + ")"
       end
     else
       ")"
