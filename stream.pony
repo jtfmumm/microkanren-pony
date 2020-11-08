@@ -18,9 +18,6 @@ primitive SNil[A: Any val]
     this
 
   fun size(): USize =>
-    """
-    It's unwise to call size() on an infinite stream
-    """
     0
 
   fun empty(): Bool =>
@@ -63,9 +60,6 @@ primitive SNil[A: Any val]
     SNil[A]
 
   fun val reverse(): SNil[A] =>
-    """
-    Builds a new stream by reversing the elements in the stream.
-    """
     this
 
   fun val prepend(a: A): SCons[A] =>
