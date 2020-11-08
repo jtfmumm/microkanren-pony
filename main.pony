@@ -116,7 +116,7 @@ actor Main
       // Stream((( (#(0) . WA)) . 3), (( (#(0) . NY)) . 3), (( (#(1) . NY) (#(0) . Bronx)) . 5), (( (#(1) . WA) (#(0) . Seattle)) . 5))
       @printf[I32]("Reified: %s\n".cstring(),
         MK.reify_items(res11).string().cstring())
-      // Reified: Stream(WA, NY, Bronx, Seattle)
+      // Reified: Stream(US, WA, NY, Bronx, Seattle)
 
       @printf[I32]("\nDivergo (printing this result would diverge)\n"
         .cstring())
