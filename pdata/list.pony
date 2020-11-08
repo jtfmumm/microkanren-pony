@@ -77,10 +77,10 @@ primitive Lists[A]
       false
     elseif (l1.is_non_empty() and l2.is_empty()) then
       false
-    elseif (l1.head() != l2.head()) then
+    elseif (l1.head()? != l2.head()?) then
       false
     else
-      eq[T](l1.tail(), l2.tail())
+      eq[T](l1.tail()?, l2.tail()?)?
     end
 
 primitive Nil[A]

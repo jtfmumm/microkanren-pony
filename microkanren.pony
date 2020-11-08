@@ -17,7 +17,7 @@ class val Var is Term
   new val create(id': USize) => id = id'
   fun valeq(that: Var): Bool => id == that.id
   fun string(): String => "#(" + id.string() + ")"
-  fun hash(): U64 => id.hash()
+  fun hash(): U64 => id.hash().u64()
   fun increment(): Var => Var(id + 1)
 
 class val VarKey is Equatable[VarKey]
@@ -27,7 +27,7 @@ class val VarKey is Equatable[VarKey]
   fun id(): USize => _v.id
   fun string(): String => _v.string()
   fun eq(that: VarKey): Bool => _v.id == that._v.id
-  fun hash(): U64 => _v.id.hash()
+  fun hash(): U64 => _v.id.hash().u64()
 
 class val Pair is Term
   let fst: Term
@@ -55,7 +55,7 @@ class val SubstEnv
 
   fun empty(): Bool => _s.size() == 0
   fun val add(v: Var, t: Term): SubstEnv =>
-    try SubstEnv(_s.update(VarKey(v), t)) else this end
+    try SubstEnv(_s.update(VarKey(v), t)?) else this end
   fun apply(v: Var): Term => _s.get_or_else(VarKey(v), v)
   fun reify(v: Var): Term => MK.walk(v, SubstEnv(_s))._1
   fun success(): Bool => _s.contains(VarKey(Var(True.id())))
@@ -169,7 +169,7 @@ primitive MK
       | let sn: SNext[State] =>
         SDelay[State]({(): Stream[State] => MK.mplus(s2, sn.force())} val)
       else
-        SCons[State](s1.head(), mplus(s2, s1.tail()))
+        SCons[State](s1.head()?, mplus(s2, s1.tail()?))
       end
     else
       mzero()
@@ -182,7 +182,7 @@ primitive MK
       | let sn: SNext[State] =>
         SDelay[State]({(): Stream[State] => MK.bind(sn.force(), g)} val)
       else
-        mplus(g(s.head()), bind(s.tail(), g))
+        mplus(g(s.head()?), bind(s.tail()?, g))
       end
     else
       mzero()
@@ -366,7 +366,7 @@ class val SGoalStep is SNext[State]
     _g(_sc)
 
   fun mature(): (State, Stream[State]) ? =>
-    _g(_sc).mature()
+    _g(_sc).mature()?
 
 ////////////////////////
 // List creation API
@@ -383,7 +383,7 @@ primitive TList
     var l: Term = TNil()
     try
       while n > 0 do
-        l = Pair(Vl(arr(n - 1)), l)
+        l = Pair(Vl(arr(n - 1)?), l)
         n = n - 1
       end
       match l
@@ -411,7 +411,7 @@ class val Relation
     var g = MK.empty_goal()
     try
       while n > 0 do
-        let next = _ts(n - 1)
+        let next = _ts(n - 1)?
         g = ((Vl(next._1) == t1) and (Vl(next._2) == t2)) or g
         n = n - 1
       end

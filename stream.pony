@@ -98,7 +98,7 @@ trait val SNext[A: Any val]
       // TODO: Address and remove
       if false then error end
 
-      (let h: A, let t: Stream[A]) = mature()
+      (let h: A, let t: Stream[A]) = mature()?
       SCons[A](h, t)
     else
       SNil[A]
@@ -126,13 +126,13 @@ trait val SNext[A: Any val]
     """
     Returns the head of the stream.
     """
-    mature()._1
+    mature()?._1
 
   fun tail(): Stream[A] ? =>
     """
     Returns the tail of the stream.
     """
-    mature()._2
+    mature()?._2
 
   // TODO: Determine why compiler refuses to accept this use of
   // type parameter B: Any val on SNext (but not SCons) for map and
@@ -182,16 +182,16 @@ trait val SNext[A: Any val]
 
   fun string(): String =>
     try
-      match head()
+      match head()?
       | let str: Printable =>
         try
-          "Stream(" + str.string() + tail()._string()
+          "Stream(" + str.string() + tail()?._string()
         else
           "Stream(" + str.string() + ")"
         end
       else
         try
-          "Stream(" + "?" + tail()._string()
+          "Stream(" + "?" + tail()?._string()
         else
           "Stream(" + "?" + ")"
         end
@@ -202,16 +202,16 @@ trait val SNext[A: Any val]
 
   fun _string(): String =>
     try
-      match head()
+      match head()?
       | let str: Printable =>
         try
-          ", " + str.string() + tail()._string()
+          ", " + str.string() + tail()?._string()
         else
           ", " + str.string() + ")"
         end
       else
         try
-          ", " + "?" + tail()._string()
+          ", " + "?" + tail()?._string()
         else
           ", " + "?" + ")"
         end
@@ -380,10 +380,10 @@ class val SMerge[A: Any val] is SNext[A]
 
   fun mature(): (A, Stream[A]) ? =>
     match (_l, _r)
-    | (let l: SNil[A], _) => _r.mature()
-    | (_, let r: SNil[A]) => _l.mature()
+    | (let l: SNil[A], _) => _r.mature()?
+    | (_, let r: SNil[A]) => _l.mature()?
     else
-      (let h: A, let t: Stream[A]) = _l.mature()
+      (let h: A, let t: Stream[A]) = _l.mature()?
       (h, SMerge[A](_r, t))
     end
 
@@ -395,8 +395,8 @@ class val SDelay[A: Any val] is SNext[A]
 
   fun mature(): (A, Stream[A]) ? =>
     let next = _s().force()
-    (next.head(), SDelay[A](recover {()(next): Stream[A] =>
-      try next.tail() else SNil[A] end}
+    (next.head()?, SDelay[A](recover {()(next): Stream[A] =>
+      try next.tail()? else SNil[A] end}
     end))
 
 class val SMap[A: Any val, B: Any val] is SNext[B]
@@ -427,7 +427,7 @@ class val SFlatMap[A: Any val, B: Any val] is SNext[B]
     match _s.force()
     | let cons: SCons[A] =>
       let next = _f(cons.head()).force()
-      (next.head(), SFlatMap[A, B](_f, cons.tail()).merge(next.tail()))
+      (next.head()?, SFlatMap[A, B](_f, cons.tail()).merge(next.tail()?))
     else
       error
     end
@@ -442,9 +442,9 @@ class val SFilter[A: Any val] is SNext[A]
 
   fun mature(): (A, Stream[A]) ? =>
     let s = _s.force()
-    if _pred(s.head()) then
-      (s.head(), SFilter[A](_pred, s.tail()))
+    if _pred(s.head()?) then
+      (s.head()?, SFilter[A](_pred, s.tail()?))
     else
-      SFilter[A](_pred, s.tail()).mature()
+      SFilter[A](_pred, s.tail()?).mature()?
     end
 
